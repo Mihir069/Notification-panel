@@ -14,6 +14,12 @@
                 margin: 0;
                 padding: 0;
             }
+            .hide{
+                display: none;
+            }
+            .show{
+                display: flex;
+            }
             .sliderbar-container {
                 position: fixed;
                 top: 0;
@@ -30,6 +36,13 @@
                 font-size: 20px;
                 font-weight: bold;
                 margin-bottom: 40px;
+            }
+            .sliderbar-logo-short{
+                text-align: center;
+                font-size: 20px;
+                font-weight: bold;
+                margin-bottom: 40px;
+                margin-left: 45px;
             }
             .sliderbar-item {
                 margin: 20px;
@@ -64,19 +77,19 @@
                 left: 20px;
             }
             .main-container {
-                margin-left: 250px;
+                margin-left: 230px;
                 padding: 20px;
                 transition: margin-left 0.3s;
             }
             .main-content-collapsed {
-                margin-left: 80px;
+                margin-left: 100px;
             }
             #notification-panel {
                 display: none; 
                 position: fixed;
                 top: 82px;
                 right: -320px; 
-                width: 300px;
+                width: 350px;
                 height: 100%;
                 background-color: white;
                 box-shadow: 0 4px 8px #595959;
@@ -97,11 +110,15 @@
                 font-size: 14px;
             }
             .notification-item.unread {
-                background-color: #f0f8ff;
-                font-weight: bold;
+                background-color: #f5f5ff;
+                border: 2px solid #5253ac;
+                color:#5253ac;
+                font-weight:500;
             }
             .notification-item.read {
-                background-color: #e9ecef;
+                background-color: #f5f5ff;
+                border:2px solid #3f4d5f ;
+                color: #3f4d5f;
             }
             .badge-notifications {
                 background-color: red;
@@ -111,18 +128,28 @@
                 right: 5px;
                 font-size: 12px;
             }
+            .message-text{
+                padding-left: 15px;
+            }
             .model-footer{
                 height: 40px;
             }
             .close-btn{
-                margin-top: 135px;
+                margin-top: 100px;
+            }
+            .count{
+                border-radius: 30px;
+                position: relative;
+                right:15px;
+                font-size: 10px;
             }
         </style>
     </head>
     <body>
         <!-- slider bar -->
         <div class="sliderbar-container" id="sliderbar-container">
-            <div class="sliderbar-logo">ClientLogo</div>
+            <div class="sliderbar-logo" id="logo">ClientLogo</div>
+            <div class="sliderbar-logo-short hide" id="short-logo">CL</div>
             <div class="toggle-sliderbar-container">
                 <div class="btn" id="toggle-sliderbar">
                     <i class="fa-solid fa-bars"></i>
@@ -144,7 +171,7 @@
         </div>
 
         <!-- main-body -->
-        <div class="main-container">
+        <div class="main-container" id="main-content-collapsed">
             <nav class="navbar border-bottom">
                 <div class="container-fluid">
                     <a class="navbar-brand" href="#">Application</a>
@@ -152,9 +179,9 @@
                         <ul class="navbar-nav">
                             <li>
                                 <i class="fa-solid fa-bell"
-                                    style="font-size: 24px; cursor: pointer;"
+                                    style="font-size: 25px; cursor: pointer;"
                                     id="notification-icon"></i>
-                                <span class="bg-danger badge">0</span>
+                                <span class="bg-danger badge count">0</span>
                             </li>
                         </ul>
                     </div>
@@ -174,11 +201,9 @@
             <div class="modal-content modal-dialog">
                 <div class="modal-header">
                     <h5 class="modal-title"
-                        id="notification-modal-label">Notification
-                        Details</h5>
+                        id="notification-title"></h5>
                 </div>
                 <div class="modal-body">
-                    <p id="notification-title"></p>
                     <p id="notification-message"></p>
                     <p><strong>Timestamp:</strong> <span
                             id="notification-modal-timestamp"></span></p>
@@ -195,28 +220,34 @@
         <script>
             document.getElementById('toggle-sliderbar').addEventListener('click', () => {
                 const sliderbar = document.getElementById('sliderbar-container');
+                const logo = document.getElementById('logo');
+                const shortLogo = document.getElementById('short-logo');
+                const mainBody = document.getElementById('main-content-collapsed')
+                mainBody.classList.toggle('main-content-collapsed')
+                logo.classList.toggle('hide');
+                shortLogo.classList.toggle('show');
                 sliderbar.classList.toggle('sliderbar-collapse');
             });
 
             document.getElementById('notification-icon').addEventListener('click', () => {
                 const notificationPanel = document.getElementById('notification-panel');
                 
-                // Toggle the slide-in/out effect
+                // Toggle the slide
                 if (notificationPanel.style.display === 'none' || notificationPanel.style.display === '') {
                     notificationPanel.style.display = 'block';
                     setTimeout(() => {
-                        notificationPanel.style.right = '0'; // Slide panel in
+                        notificationPanel.style.right = '0';
                     }, 10);
                 } else {
-                    notificationPanel.style.right = '-320px'; // Slide panel out
+                    notificationPanel.style.right = '-320px'; 
                     setTimeout(() => {
-                        notificationPanel.style.display = 'none'; // Hide the panel after sliding out
-                    }, 300); // Wait for the slide-out animation to complete before hiding
+                        notificationPanel.style.display = 'none'; 
+                    }, 300); 
                 }
             });
 
             const notifications = [
-                { id: 1, title: 'New Comment', message: 'You have a new comment on your post.', timestamp: '2024-11-10 08:00 AM', read: false },
+                { id: 1, title: 'New Comment', message: 'You have a new comment.', timestamp: '2024-11-10 08:00 AM', read: false },
                 { id: 2, title: 'System Update', message: 'A new system update is available.', timestamp: '2024-11-09 04:00 PM', read: false },
                 { id: 3, title: 'New Message', message: 'You have received a new message.', timestamp: '2024-11-08 02:00 PM', read: true }
             ];
@@ -234,7 +265,17 @@
                     const li = document.createElement('li');
                     li.classList.add('notification-item');
                     li.classList.add(notification.read ? 'read' : 'unread');
-                    li.innerHTML = `<strong>${notification.title}</strong><br>${notification.message}<br><small>${notification.timestamp}</small>`;
+                    li.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>${notification.title}</strong><br>
+                                ${notification.message}<br>
+                                <small>${notification.timestamp}</small>
+                            </div>
+                            <i class="fa-solid fa-trash" style="cursor: pointer;" onclick="deleteNotification(${notification.id})"></i>    
+                        </div>
+                    `;
+
 
                     // Handle click to show the popup
                     li.addEventListener('click', () => {
@@ -267,6 +308,14 @@
                 modal.show();
             }
 
+            //delete notification
+            function deleteNotification(id){
+                const index = notifications.findIndex(delNotification=>delNotification.id === id)
+                if(index>-1){
+                    notifications.splice(index,1);
+                    
+                }
+            }
             // Close modal on button click
             document.querySelector('.model-footer ').addEventListener('click', () => {
                 const modal = bootstrap.Modal.getInstance(document.getElementById('notification-modal'));
